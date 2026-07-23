@@ -1,0 +1,12 @@
+dataset: tinyimagenet
+data_root: ./data
+data_variant: 300
+seed: 42
+batch_size: 128
+epochs: 500
+learning_rate: 0.001
+embed_dim: 128
+budget: 7
+grid_size: 5
+snapshot_every: 5
+output_dir: ./outputs/tinyimagenet

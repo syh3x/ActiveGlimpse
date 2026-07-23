@@ -1,0 +1,1 @@
+The notebooks remain the exact experiment entry points. This package contains small stable utilities that can be imported by future thin drivers without copying implementation between notebooks.

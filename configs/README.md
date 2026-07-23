@@ -1,0 +1,1 @@
+Configuration files record the paper experiment settings. The notebooks currently contain the executable training workflow; keep these values synchronized when changing an experiment.
