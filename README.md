@@ -1,111 +1,155 @@
+<div align="center">
+
 # ActiveGlimpse
 
 ### RL-guided sparse image reconstruction
 
-ActiveGlimpse reconstructs images from a limited sequence of observed patches. A learned policy chooses where to look, while the reconstruction model uses those observations to recover the full image.
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)
+![PyTorch](https://img.shields.io/badge/PyTorch-2.1%2B-ee4c2c.svg)
+![Status](https://img.shields.io/badge/status-under%20review-yellow.svg)
+
+**[Overview](#overview) • [Results](#headline-results) • [Qualitative Results](#qualitative-results) • [Installation](#installation) • [Reproducing](#reproducing-the-experiments) • [Citation](#license--citation)**
+
+</div>
+
+> **Anonymous review copy.** No author names, personal paths, or identifying links are included below. Do not add any until the double-blind review period ends - see [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md).
+
+---
+
+## Overview
+
+ActiveGlimpse reconstructs images from a limited sequence of observed patches. A learned actor-critic policy decides *where to look next*; a transformer scene memory accumulates what's been seen; a decoder reconstructs the full image from those glimpses alone.
 
 <p align="center">
-	<img src="results/figures/Architechture.png" alt="ActiveGlimpse architecture" width="820">
+  <img src="results/figures/Architechture.png" alt="ActiveGlimpse architecture" width="820">
 </p>
 
-## At A Glance
+<div align="center">
 
-| Component | Release |
+| | |
 |---|---|
-| Datasets | MNIST, Fashion-MNIST, KMNIST, CIFAR-10, Tiny ImageNet, AnimeFace |
-| Observation budget | 7 patches on a 5 x 5 grid, approximately 28% visible |
-| Main metric | Peak signal-to-noise ratio (PSNR, dB) |
-| Reproducibility | Clean notebooks, fixed seed, dataset configs, and paper figures |
-| License | MIT |
+| **Datasets** | MNIST · Fashion-MNIST · KMNIST · CIFAR-10 · Tiny ImageNet · AnimeFace |
+| **Observation budget** | 7 patches on a 5×5 grid — ≈28% of the image visible |
+| **Main metric** | Peak Signal-to-Noise Ratio (PSNR, dB) |
+| **Reproducibility** | Output-free notebooks, fixed seed, per-dataset configs |
+
+</div>
+
+---
 
 ## Headline Results
 
-The learned policy improves reconstruction quality over random initialization on every reported dataset.
+<table>
+<tr>
+<td width="46%" valign="middle">
 
-| Dataset | Random initialization | Learned policy | Improvement |
+<img src="results/figures/psnrComparision.png" alt="PSNR comparison across datasets" width="100%">
+
+</td>
+<td width="54%" valign="middle">
+
+**The learned policy beats random glimpse selection on every dataset.**
+
+| Dataset | Random init | Learned policy | Δ |
 |---|---:|---:|---:|
 | MNIST | 13.85 | **25.56** | +11.71 |
-| CIFAR-10 | 15.68 | **19.82** | +4.14 |
 | Fashion-MNIST | 16.40 | **24.77** | +8.37 |
 | KMNIST | 10.80 | **18.12** | +7.32 |
-| Tiny ImageNet | 15.04 | **17.50** | +2.46 |
+| CIFAR-10 | 15.68 | **19.82** | +4.14 |
 | AnimeFace | 13.97 | **18.56** | +4.59 |
+| Tiny ImageNet | 15.04 | **17.50** | +2.46 |
+
+*Gains are largest on structurally simple datasets (MNIST, Fashion-MNIST) and shrink as texture complexity increases — consistent with a policy that is learning to prioritize informative regions rather than reconstructing on brute force alone.*
+
+Raw values: [`results/metrics.json`](results/metrics.json)
+
+</td>
+</tr>
+</table>
+
+---
+
+## Qualitative Results
+
+**Dataset coverage** - the six datasets span handwriting, clothing, natural objects, and faces:
 
 <p align="center">
-	<img src="results/figures/psnrComparision.png" alt="PSNR comparison across datasets" width="760">
+  <img src="results/figures/dataset.png" alt="Dataset examples" width="720">
 </p>
 
-<p align="center"><em>PSNR comparison. The original high-resolution figure is retained for paper use; the README display is intentionally constrained.</em></p>
+**Training dynamics** - cumulative reward, PSNR, and total loss over 300 epochs across all six datasets:
 
-## Repository Contents
+<p align="center">
+  <img src="results/figures/training_curve.png" alt="Training curves" width="100%">
+</p>
 
-## Repository layout
+**Policy behavior** - glimpse trajectories the policy selects step-by-step, alongside the resulting reconstruction:
+
+<p align="center">
+  <img src="results/figures/trajectry.png" alt="Policy trajectory visualization" width="100%">
+</p>
+
+---
+
+## Repository Layout
 
 ```text
 .
 ├── README.md
 ├── LICENSE
+├── CITATION.cff
 ├── requirements.txt
-├── .gitignore
-├── configs/                 # Reproducible experiment settings
-├── src/                     # Small reusable utilities and public entry points
-├── *.ipynb                  # Complete per-dataset experiment notebooks
-├── results/figures/         # Paper figures copied from the experiment outputs
-├── results/metrics.json     # Public numeric results, when released
-├── checkpoints/             # Download instructions; weights are hosted externally
-└── docs/                    # Reproduction and release notes
+├── configs/                  # Per-dataset experiment settings (yaml)
+├── src/                      # Reusable utilities (config schema, metrics)
+├── *.ipynb                   # Output-free, per-dataset experiment notebooks
+├── results/
+│   ├── figures/              # Paper figures (this README)
+│   └── metrics.json          # Source numbers behind the results table
+├── checkpoints/              # Pointers to externally-hosted model weights
+└── docs/                     # Reproduction notes + release checklist
 ```
+
+---
 
 ## Installation
 
-Python 3.10 or newer is recommended. A CUDA-enabled PyTorch installation is recommended for training; CPU is sufficient for inspection and small smoke tests.
+Python 3.10+ recommended. CUDA-enabled PyTorch is recommended for training; CPU is sufficient for inspection.
 
 ```bash
 python -m venv .venv
-# Windows: .venv\Scripts\activate
-# macOS/Linux: source .venv/bin/activate
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-The standard datasets are downloaded by the relevant torchvision dataset loader. AnimeFace and Tiny ImageNet require the dataset archives and paths described in the corresponding notebook; these datasets are not redistributed here.
+Standard datasets are fetched automatically via `torchvision`. AnimeFace and Tiny ImageNet require external downloads - see the relevant notebook for paths and terms.
 
-## Reproducing the experiments
+---
 
-Open the relevant notebook in VS Code or Jupyter and run it from top to bottom:
+## Reproducing the Experiments
+
+Each notebook is a self-contained, top-to-bottom experiment for one dataset:
 
 | Dataset | Notebook |
 |---|---|
-| MNIST | [MNIST.ipynb](MNIST.ipynb) |
-| Fashion-MNIST | [FassionMNIST.ipynb](FassionMNIST.ipynb) |
-| KMNIST | [KMNIST.ipynb](KMNIST.ipynb) |
-| CIFAR-10 | [CIFAR.ipynb](CIFAR.ipynb) |
-| Tiny ImageNet | [TinyImagenet.ipynb](TinyImagenet.ipynb) |
-| AnimeFace | [animeface.ipynb](animeface.ipynb) |
+| MNIST | [`MNIST.ipynb`](MNIST.ipynb) |
+| Fashion-MNIST | [`FassionMNIST.ipynb`](FassionMNIST.ipynb) |
+| KMNIST | [`KMNIST.ipynb`](KMNIST.ipynb) |
+| CIFAR-10 | [`CIFAR.ipynb`](CIFAR.ipynb) |
+| Tiny ImageNet | [`TinyImagenet.ipynb`](TinyImagenet.ipynb) |
+| AnimeFace | [`animeface.ipynb`](animeface.ipynb) |
 
-The notebooks are output-free and can be opened directly in VS Code or Jupyter. Set the dataset root in the relevant notebook before running it. AnimeFace and Tiny ImageNet require external dataset downloads and are not redistributed here.
+Notebooks ship with outputs cleared, so the repository stays small and no local paths or environment metadata leak in. Set the dataset root at the top of the relevant notebook, then run all cells. Per-dataset hyperparameters mirrored in [`configs/`](configs/) for reference.
 
-## Figures
+---
 
-<details>
-<summary>Additional paper figures</summary>
+## Model Weights
 
-<p align="center">
-	<img src="results/figures/dataset.png" alt="Dataset examples" width="760">
-</p>
+Checkpoints (~18 MB each) are not committed to Git. See [`checkpoints/README.md`](checkpoints/README.md) for the external hosting plan (Zenodo / Hugging Face Hub) and download links once released.
 
-<p align="center">
-	<img src="results/figures/training_curve.png" alt="Training curve" width="760">
-</p>
+---
 
-<p align="center">
-	<img src="results/figures/trajectry.png" alt="Policy trajectory visualization" width="760">
-</p>
+## License & Citation
 
-</details>
-
-The source numbers for the table are stored in [results/metrics.json](results/metrics.json). Large checkpoints and raw pickle result dumps are excluded from Git; see [checkpoints/README.md](checkpoints/README.md) for the external release plan.
-
-## License
-
-The code is released under the MIT License. See [LICENSE](LICENSE) and [CITATION.cff](CITATION.cff).
+Released under the [MIT License](LICENSE). See [`CITATION.cff`](CITATION.cff) - citation details will be finalized after the review period.
