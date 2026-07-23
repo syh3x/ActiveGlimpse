@@ -1,0 +1,14 @@
+{
+  "metric": "PSNR (dB)",
+  "evaluation_split": "test",
+  "seed": 42,
+  "datasets": {
+    "mnist": {"random_initialization": 13.85, "learned_policy": 25.56},
+    "fashion_mnist": {"random_initialization": 16.40, "learned_policy": 24.77},
+    "kmnist": {"random_initialization": 10.80, "learned_policy": 18.12},
+    "cifar10": {"random_initialization": 15.68, "learned_policy": 19.82},
+    "tiny_imagenet": {"random_initialization": 15.04, "learned_policy": 17.50},
+    "animeface": {"random_initialization": 13.97, "learned_policy": 18.56}
+  },
+  "notes": "Values transcribed from the PSNR comparison figure. Confirm against final paper tables before release."
+}

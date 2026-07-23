@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+title: ActiveGlimpse
+message: Please cite the accompanying paper when using this repository.
+type: software
+version: 0.1.0
+date-released: 2026-07-24
+license: MIT
+authors:
+  - family-names: REPLACE_BEFORE_PUBLIC_RELEASE
+    given-names: REPLACE_BEFORE_PUBLIC_RELEASE
+repository-code: https://github.com/REPLACE_AFTER_ACCEPTANCE/ActiveGlimpse
